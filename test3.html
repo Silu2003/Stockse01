@@ -1,0 +1,1619 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            color: #333;
+        }
+
+        .date {
+            color: #666;
+            font-size: 0.9rem;
+            margin-left: 273px;
+        }
+
+        .stats-container {
+            height: 150px;
+            display: flex;
+            gap: 1rem;
+            background: white;
+            padding: 1.5rem 3rem;
+            border-radius: 1rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .stat-item {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: nowrap;
+            justify-content: center;
+        }
+
+        /* Vertical line styling */
+        .stat-item:not(:last-child)::after {
+            content: "";
+            position: absolute;
+            right: -0.5rem;
+            top: 10%;
+            bottom: 10%;
+            width: 1px;
+            background-color: #ddd;
+        }
+
+        .cab-a {
+            gap: 3%;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .vl {
+            border-left: 2px solid #f0f0f0;
+            height: 137px;
+            position: relative;
+            left: 107px;
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .green-bg {
+            background-color: #e8fff3;
+            color: #00c853;
+        }
+
+        .blue-bg {
+            background-color: #e3f2fd;
+            color: #2196f3;
+        }
+
+        .pink-bg {
+            background-color: #fce4ec;
+            color: #e91e63;
+        }
+
+        .stat-info h3 {
+            font-size: 2.3rem;
+            margin-bottom: 0.25rem;
+            margin-top: -17px;
+        }
+
+        .stat-info p {
+            color: #666;
+            font-size: 0.875rem;
+            margin-top: -80px;
+            padding-top: 27px;
+        }
+
+        .mpcontainer {
+            width: 100%;
+            max-width: 892px;
+            margin: 20px auto;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background-color: #ffffff;
+            border-radius: 31px;
+        }
+
+        .mpheader {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .title {
+            font-size: 40px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 20px;
+            margin-top: 5px;
+        }
+
+        .dropdown {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .notice-board {
+            background: white;
+            border-radius: 24px;
+            padding: 32px;
+            margin-top: 21px;
+            max-width: 450px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            max-height: 545px;
+        }
+
+        .stat-info {
+            position: relative;
+            top: 17px;
+            left: 19px;
+            line-height: 15px
+        }
+
+        .notice-board__header {
+            margin-bottom: 32px;
+        }
+
+        .notice-board__title {
+            font-size: 30px;
+            font-weight: 600;
+            color: #11142d;
+            margin-bottom: 8px;
+        }
+
+        .notice-board__subtitle {
+            font-size: 20px;
+            color: #808191;
+        }
+
+        .notice-board__content {
+            position: relative;
+            display: flex;
+            
+            flex: 1;
+            overflow: hidden;
+        }
+        .scroll-container {
+            position: relative;
+            display: flex;
+        }
+        #newsContainer {
+            max-height: 350px;
+            overflow-y: auto;
+            flex-grow: 1;
+            scrollbar-width: none;
+            -ms-overflow-style: none; 
+        }
+        #newsContainer::-webkit-scrollbar {
+            display: none;
+        }
+        .news-card {
+            background-color: #f8f9fe;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border-radius: 8px;
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
+        .news-card:hover {
+            transform: translateX(5px);
+            background-color: #f0f2fd;
+        }
+        .news-title {
+            font-size: 1.2rem;
+            color: #333;
+        }
+        .scroll-indicator {
+            position: relative;
+            right: 0px;
+            top: 73%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding: 10px;
+        }
+        .scroll-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #ddd;
+            transition: background-color 0.3s;
+        }
+        .scroll-dot.active {
+            background-color: #6366f1;
+        }
+
+        .mpnam {
+            position: relative;
+            left: 50px;
+        }
+
+        .notice-board__list {
+            flex: 1;
+            overflow-y: scroll;
+            padding-right: 16px;
+            scrollbar-width: none;
+           
+        }
+        .notice-board__list::-webkit-scrollbar {
+            display: none;   
+        }
+        .notice-item {
+            background: #f8f9fe;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .notice-item:hover {
+            transform: translateX(4px);
+        }
+
+        .notice-item__text {
+            font-size: 16px;
+            color: #11142d;
+        }
+
+        .calendar-icon {
+            width: 18px;
+            height: 18px;
+            margin-right: 8px;
+            color: #666;
+        }
+
+        .date-container {
+            display: flex;
+            align-items: center;
+            background-color: #f8f9fa;
+            padding: 8px 16px;
+            border-radius: 100px;
+            border: 1px solid #e0e0e0;
+            max-width: 250px;
+        }
+
+        .date-content {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .date-label {
+            margin-right: 8px;
+        }
+
+        .selected-date {
+            font-size: 14px;
+            font-weight: 500;
+            color: #111;
+        }
+
+        .notice-board__nav {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            padding: 4px;
+            padding-top: 100px;
+        }
+
+        .nav-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #e4e4e4;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-dot.active {
+            background: #6c5dd3;
+        }
+
+        .sun-container {
+            width: AUTO;
+            margin: 0px 0 2px 6px;
+            padding: 0 15px;
+
+        }
+
+        .sun-header {
+            margin-left: 2%;
+        }
+
+        .sun-title {
+            font-size: 2rem;
+            color: #333;
+        }
+
+        .sun-search-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-left: 47%;
+            margin-top: 20px;
+        }
+
+        .sun-search-box {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .sun-search-input {
+            padding: 0.5rem 1rem 0.5rem 2rem;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            width: 200px;
+        }
+
+        .sun-search-input:focus {
+            outline: none;
+            background-color: rgba(250, 251, 255, 1);
+            box-shadow: 0 0 0 2px #e5e5e5;
+        }
+
+        .sun-search-icon {
+            position: absolute;
+            left: 0.5rem;
+            color: #666;
+        }
+
+        .sun-current-date {
+            color: #666;
+            font-size: 0.9rem;
+            position: relative;
+            margin-left: 24%;
+            right: 13px;
+        }
+
+        table {
+            max-width: 1107px;
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+
+            margin-top: 2%;
+            margin-left: 6%;
+        }
+
+        th,
+        td {
+            padding: 1rem;
+            text-align: left;
+        }
+
+        th {
+            color: #666;
+            font-weight: 500;
+            font-size: 0.9rem;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        td.sun-month-cell,
+        td.sun-total-payout-cell {
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        tbody tr {
+            height: 60px;
+            transition: all 0.2s;
+        }
+
+        tbody tr:hover {
+            background-color: #f9fafb;
+            cursor: pointer;
+            transform: translateY(-1px);
+        }
+
+        tr.sun-selected {
+            background-color: #f3f4f6;
+        }
+
+        .sun-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        .sun-status-received {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+
+        .sun-status-done {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+
+        
+        #datePicker {
+            display: none;
+        }
+
+       
+        @media screen and (max-width: 1100px) and (min-width: 1000px) {
+            .notice-board {
+                margin-top: 0px;
+                max-height: 440px;
+                max-width: 922px;
+            }
+
+            .vl {
+                display: none;
+            }
+
+            .stats-container {
+                width: 100%;
+            }
+
+            .notice-board__title {
+                font-size: 28px;
+
+            }
+
+            .stat-info {
+                left: 5px;
+            }
+
+            .mpcontainer {
+                max-width: 870px;
+                width: 100%;
+            }
+
+            .scroll-container {
+                position: relative;
+                display: flex;
+                max-height: 284px;
+
+            }
+
+            .scroll-indicator {
+                position: absolute;
+                right: -26px;
+                top: 38%;
+            }
+
+            .stat-info h3 {
+                font-size: 2.3rem;
+                margin-bottom: 0.25rem;
+                margin-top: -17px;
+            }
+
+            .scroll-dot {
+                display: none;
+            }
+        }
+
+        @media screen and (max-width: 1000px) and (min-width: 770px) {
+            .notice-board {
+                background: white;
+                border-radius: 24px;
+                padding: 32px;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+                display: flex;
+                flex-direction: column;
+                margin-top: 0px;
+                max-height: 430px;
+                /* margin-left: 18px; */
+                max-width: 708px;
+            }
+
+            .vl {
+                display: none;
+            }
+
+            .scroll-container {
+                position: relative;
+                display: flex;
+                max-height: 260px;
+
+            }
+
+            .scroll-indicator {
+                position: absolute;
+                right: -26px;
+                top: 38%;
+            }
+
+            .stat-info h3 {
+                font-size: 2.3rem;
+                margin-bottom: 0.25rem;
+                margin-top: -17px;
+            }
+
+            .stat-info {
+                left: 5px;
+            }
+
+            .notice-board__title {
+                font-size: 28px;
+
+            }
+
+            .scroll-dot {
+                display: none;
+            }
+        }
+
+        /* mobile view */
+        @media (max-width: 769px) {
+            .header h1 {
+                font-size: 1.25rem;
+            }
+
+            .vl {
+                display: none;
+            }
+
+            .stats-container {
+                display: flex;
+                overflow-x: auto;
+                
+                scroll-snap-type: x mandatory;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .stat-item {
+                min-width: 250px;
+                /* Set a minimum width for each stat item */
+                flex-shrink: 0;
+                scroll-snap-align: start;
+                /* Align stat items in the scroll area */
+            }
+
+            .content-grid {
+                flex-direction: column;
+            }
+
+            .chart-card,
+            .news-card {
+                width: 100%;
+                /* Make charts and news cards full width */
+            }
+
+            .date-container {
+                margin-left: auto;
+                /* Adjust date container positioning on smaller screens */
+            }
+
+            .payment-table h2 {
+                font-size: 1.1rem;
+                /* Adjust the heading size */
+            }
+            /* Adjust chart height for smaller screens */
+            #earningsChart {
+                max-height: 300px;
+            }
+
+            th,
+            td {
+                padding: 10px;
+                font-size: 12px;
+            }
+
+            .status {
+                font-size: 12px;
+            }
+
+            .mpcontainer {
+                padding: 10px;
+            }
+
+            .title {
+                font-size: 32px;
+            }
+
+            .subtitle {
+                font-size: 20px;
+            }
+
+            .chart-container {
+                padding: 15px;
+            }
+
+            .notice-board {
+                background: white;
+                border-radius: 24px;
+                padding: 32px;
+                max-width: 480px;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+                display: flex;
+                flex-direction: column;
+                max-height: 430px;
+                margin-left: 0%;
+                margin-top: 0%;
+            }
+
+            .notice-board__title {
+                font-size: 27px;
+
+            }
+
+            .scroll-container {
+                position: relative;
+                display: flex;
+                max-height: 260px;
+
+            }
+
+            .scroll-indicator {
+                top: 50%;
+            }
+
+            .stat-info h3 {
+                font-size: 2.3rem;
+                margin-bottom: 0.25rem;
+                margin-top: -17px;
+            }
+
+            .mpnam {
+                left: 0;
+                top: 0;
+            }
+        }
+
+        /* Smaller mobile view adjustments */
+        @media (max-width: 480px) {
+            .cab-a {
+                flex-direction: column;
+                gap: 23px;
+            }
+
+            .vl {
+                display: none;
+            }
+
+            .header h1 {
+                font-size: 1rem;
+            }
+
+            .header {
+                flex-direction: column;
+            }
+
+            .date-container {
+                font-size: 0.8rem;
+                padding: 5px 10px;
+                margin: 0px;
+            }
+
+            .title {
+                font-size: 18px;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            th,
+            td {
+                padding: 8px;
+            }
+
+            .status {
+                font-size: 10px;
+                padding: 2px 8px;
+            }
+
+            .title {
+                font-size: 22px;
+            }
+
+            .subtitle {
+                font-size: 14px;
+            }
+
+            .dropdown {
+                width: 100%;
+                max-width: 100px;
+                margin-top: 10px;
+            }
+
+            .mpheader {
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-evenly;
+                gap: 0px;
+                margin-top: 20px;
+            }
+
+            .sun-current-date {
+                font-size: 0.8rem;
+                margin-left: 15px;
+                position: relative;
+            }
+
+            .scroll-container {
+                position: relative;
+                display: flex;
+                max-height: 284px;
+
+            }
+
+            .scroll-indicator {
+                position: absolute;
+                right: -26px;
+                top: 38%;
+            }
+
+            .stat-info h3 {
+                font-size: 2.3rem;
+                margin-bottom: 0.25rem;
+                margin-top: -17px;
+            }
+
+            .scroll-dot {
+                display: none;
+            }
+        }
+
+        @media (max-width: 1200px) {
+            body {
+                min-width: 100%;
+            }
+
+            .sun-container {
+                width: 100%;
+                margin: 20px 0;
+                padding: 0 15px;
+            }
+
+            .sun-search-container {
+                margin-left: 0;
+              
+            }
+
+            table {
+                margin-left: 0;
+            }
+        }
+
+        .dashboard {
+            display: flex;
+            height: 100vh;
+        }
+
+        .sidebar {
+            width: 250px;
+            background-color: white;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            font-size: 20px;
+            margin-bottom: 30px;
+            margin-left: 20px;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: bold;
+        }
+        .dashboard-button {
+            background-color: #6c5ce7;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            cursor: pointer;
+        }
+        nav {
+            padding: 1rem;
+        }
+        .nav-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem;
+            margin-bottom: 0.25rem;
+            text-decoration: none;
+            color: #666;
+            border-radius: 8px;
+            transition: background-color 0.2s ease;
+        }
+        .nav-item:hover {
+            background-color: rgb(89, 50, 234);
+            color: #ffffff;
+        }
+        .nav-item.active {
+            background-color: #7c3aed;
+            color: #fff;
+        }
+        .news-item.active {
+            background-color: #7c3aed;
+            color: #fff;
+            padding: 0 50px;
+        }
+        .version {
+            font-size: 0.75rem;
+            color: #666;
+            margin-left: 0.25rem;
+        }
+        .chevron {
+            font-size: 1.25rem;
+        }
+        .chevron-db {
+            height: 30px;
+            margin-left: 10px;
+            transform: rotate(0deg);
+            transition: transform 0.3s ease;
+        }
+        .logodb {
+            width: 32px;
+            height: 32px;
+        }
+        .nav-item-content {
+            display: flex;
+            align-items: center;
+        }
+        .nav-item-icon {
+            margin-right: 0.75rem;
+            width: 24px;
+            height: 24px;
+        }
+        .dashboard-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        .admin-profile { 
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .notice-board.active .chevron-db{
+            transform: rotate(180deg);
+        }
+
+        .admin-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        .admin-info {
+            display: flex;
+            flex-direction: column;
+        }
+        .admin-name {
+            font-weight: bold;
+        }
+        .admin-role {
+            font-size: 0.8em;
+            color: #666;
+        }
+        .content {
+            flex-grow: 1;
+            padding: 20px;
+            margin-top: 20px;
+            overflow-y: auto;
+            scrollbar-width: none;
+        }
+        .content::-webkit-scrollbar {
+            display: none;
+        }
+        .menu-toggle {
+            display: none;
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 1000;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+        /* POC Card Section */
+        .up-card {
+            position: absolute;
+            bottom: 10px;
+            left: 11px;
+        }
+
+        .UP-poc-section {
+            margin-top: auto;
+            /* margin-bottom: -195px; */
+        }
+
+        .UP-poc-card {
+            background: linear-gradient(107.91deg, #eaabf0 7.37%, #4623e9 95.19%);
+            padding: 20px;
+            border-radius: 16px;
+            color: white;
+        }
+
+        .UP-poc-title {
+            font-size: 14px;
+            margin-bottom: 15px;
+            opacity: 0.9;
+            margin-left: 15px;
+        }
+
+        .UP-poc-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .UP-poc-avatar {
+            width: 40px;
+            height: 40px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .UP-poc-details {
+            flex: 1;
+        }
+
+        .UP-poc-name {
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .UP-poc-position {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .UP-contact-button {
+            width: 100%;
+            padding: 10px;
+            background: rgb(255 255 255);
+            border: none;
+            border-radius: 8px;
+            color: #2a2eda;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .UP-contact-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Popup Menu Styles */
+        .UP-popup-menu {
+            display: none;
+            position: absolute;
+            top: 31px;
+            right: 0px;
+            background-color: white;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            padding: 10px;
+            z-index: 1000;
+            width: 208px;
+        }
+
+        .UP-popup-menu ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+con
+        .UP-popup-menu li {
+            padding: 10px;
+            cursor: pointer;
+            transition: background 0.3s;
+            text-align: center;
+        }
+
+        .UP-popup-menu li:hover {
+            background-color: #6c5ce7;
+            color: white;
+        }
+
+        @media (max-width: 900px) {
+            .sidebar {
+                position: fixed;
+                left: -250px;
+                top: 0;
+                bottom: 0;
+                z-index: 999;
+            }
+            .nav-item:hover {
+                background-color: rgb(89, 50, 234);
+                color: #ffffff;
+            }
+            .sidebar.active {
+                transform: translateX(250px);
+            }
+            .menu-toggle {
+                display: block;
+            }
+            .UP-poc-section {
+                margin: 20px 0;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <!-- sidebar section -->
+    <div class="dashboard">
+        <button id="menuToggle" class="menu-toggle">
+            <i data-lucide="menu"></i>
+        </button>
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <img src="img/dashlogo.jpg" alt="Dashboard logo" class="logodb" />
+                    <h1 class="dashboard-title">StockSe</h1>
+                    <span class="version">v.01</span>
+                </div>
+            </div>
+            <nav>
+                <a href="#" class="nav-item">
+                    <div class="nav-item-content">
+                        <img src="img/key-square.png" alt="Dashboard icon" class="nav-item-icon" />
+                        <span>Dashboard</span>
+                    </div>
+                    <span class="chevron">›</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <div class="nav-item-content">
+                        <img src="img/3d-square 1.png" alt="Add User icon" class="nav-item-icon" />
+                        <span>News Update</span>
+                    </div>
+                    <span class="chevron">›</span>
+                </a>
+            </nav>
+            <!-- POC Card -->
+            <div class="up-card">
+                <div class="UP-poc-section">
+                    <div class="UP-poc-title">Your POC (Point of Contact)</div>
+                    <div class="UP-poc-card">
+                        <div class="UP-poc-info">
+                            <div class="UP-poc-avatar">
+                                <img src="img/circle.png" alt="poc image" />
+                            </div>
+                            <div class="UP-poc-details">
+                                <div class="UP-poc-name">John Maverick</div>
+                                <div class="UP-poc-position">Accounts Head</div>
+                            </div>
+                        </div>
+                        <button class="UP-contact-button">Contact POC</button>
+                    </div>
+                </div>
+                <div class="admin-profile" id="UP-userName">
+                    <img src="img/loka.jpg" alt="Admin" class="admin-avatar" />
+                    <div class="admin-info">
+                        <span class="admin-name">Admin Name</span>
+                        <span class="admin-role">Account Head</span>
+                    </div>
+                    <!-- <i data-lucide="chevron-down"></i> -->
+                    <img src="img/chevron-down 2.png" alt="Expand user menu" class="chevron-db" />
+                </div>
+                <!-- Popup Menu -->
+                <div class="UP-popup-menu" id="UP-popupMenu">
+                    <ul>
+                        <li>View Profile</li>
+                        <li>Settings</li>
+                        <li>Log Out</li>
+                    </ul>
+                </div>
+            </div>
+        </aside>
+        <main class="content">
+            <div class="sbody">
+                <div class="header">
+                    <div class="data-can">
+                        <h1>Hello User Name 👋</h1>
+                    </div>
+                    <div class="date-container" onclick="openDatePicker()">
+                        <svg class="calendar-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <div class="date-content">
+                            <span class="date-label">Invested Month</span>
+                            <span class="selected-date" id="selectedDate">14 Feb 2019</span>
+                        </div>
+                        <input type="date" id="datePicker" onchange="updateDate(event)" />
+                    </div>
+                </div>
+                <div class="stats-container">
+                    <div class="stat-item">
+                        <div class="stat-icon green-bg">
+                            <img src="img/money.svg" alt="" />
+                        </div>
+                        <div class="stat-info">
+                            <h3>5,00,000</h3>
+                            <p>Total Investments</p>
+                        </div>
+                        <div class="vl"></div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon blue-bg">
+                            <img src="img/wallat.svg" alt="" />
+                        </div>
+                        <div class="stat-info">
+                            <h3>1,500</h3>
+                            <p>Total Payout/Month</p>
+                        </div>
+                        <div class="vl"></div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon pink-bg"><img src="img/bag.svg" alt="" /></div>
+                        <div class="stat-info">
+                            <h3>52%</h3>
+                            <p>ROI Till Date</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="cab-a">
+                    <div class="mpcontainer">
+                        <div class="mpheader">
+                            <div class="mpnam">
+                                <div class="title">Earning Preview</div>
+                                <div class="subtitle">Preview calculation with analytics</div>
+                            </div>
+                            <select class="dropdown" >
+                                <option>Till Date</option>
+                                <option>Till Month</option>
+                            </select>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="earningChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="notice-board">
+                        <header class="notice-board__header">
+                            <h1 class="notice-board__title">Notice Board</h1>
+                            <p class="notice-board__subtitle">
+                                Recent News on Stock Market
+                            </p>
+                        </header>
+                        <div class="scroll-container">
+                            <div id="newsContainer"></div>
+                            <div class="scroll-indicator" id="scrollIndicator"></div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="sun-container">
+                <div class="sun-header">
+                    <h1 class="sun-title">Payment Details</h1>
+                </div>
+                <div class="sun-search-container">
+                    <div class="sun-search-box">
+                        <span class="sun-search-icon"><img src="img/serch 1.svg" height="20px"
+                                alt="Search icon" /></span>
+                        <input type="text" id="sun-searchInput" class="sun-search-input"
+                            placeholder="Search By (Month year)" />
+                    </div>
+                    <div class="sun-current-date" id="sun-currentDate"></div>
+                </div>
+                <div class="sun-bro">
+                    <table id="sun-paymentTable">
+                        <thead>
+                            <tr>
+                                <th>Month</th>
+                                <th>Payout Amount</th>
+                                <th>Total Payout</th>
+                                <th>Payment Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sun-paymentTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script>
+        // Initialize Chart.js
+
+        const ctx = document.getElementById("earningChart").getContext("2d");
+
+        const data = {
+            labels: [
+                "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+            ],
+            datasets: [
+                {
+                    label: "Reinvested",
+                    data: [30, 25, 20, 35, 45, 35, 85, 45, 65, 35, 55, 20],
+                    fill: true,
+                    backgroundColor: "rgba(255, 159, 139, 0.7)",
+                    borderColor: "rgba(255, 159, 139, 1)",
+                    tension: 0.4,
+                    pointHitRadius: 10,  // Expands clickable area around each point
+                    pointHoverRadius: 8,  // Expands hover area around each point
+                },
+                {
+                    label: "Withdrawn/Month",
+                    data: [65, 35, 30, 40, 35, 45, 55, 40, 35, 45, 85, 35],
+                    fill: true,
+                    backgroundColor: "rgba(187, 159, 255, 0.7)",
+                    borderColor: "rgba(187, 159, 255, 1)",
+                    tension: 0.4,
+                    pointHitRadius: 10,
+                    pointHoverRadius: 8,
+                },
+            ],
+        };
+        const config = {
+            type: "line",
+            data: data,
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: "bottom",
+                        labels: {
+                            usePointStyle: true,
+                            pointStyle: "circle",
+                        },
+                    },
+                    tooltip: {
+                        enabled: true,
+                        callbacks: {
+                            label: function (context) {
+                                const label = context.dataset.label || "";
+                                const xLabel = context.label;
+                                const yValue = context.raw;
+                                return `${label} - ${xLabel}: ${yValue}`;
+                            },
+                        },
+                    },
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            stepSize: 20,
+                        },
+                        grid: {
+                            color: "#f0f0f0",
+                        },
+                    },
+                    x: {
+                        grid: {
+                            display: false,
+                        },
+                    },
+                },
+                elements: {
+                    point: {
+                        radius: 0, // Keeps points invisible but expands their interactive areas
+                    },
+                },
+                onHover: (event, chartElement) => {
+                    event.native.target.style.cursor = chartElement.length ? "pointer" : "default";
+                },
+
+                onClick: (event) => {
+                    const chart = Chart.getChart("earningChart");
+                    const points = chart.getElementsAtEventForMode(
+                        event,
+                        "nearest",
+                        { intersect: false }, // Expands clickable area to nearest point within the radius
+                        true
+                    );
+
+                    if (points.length) {
+                        const point = points[0];
+                        const datasetIndex = point.datasetIndex;
+                        const dataIndex = point.index;
+
+                        const label = chart.data.labels[dataIndex];
+                        const value = chart.data.datasets[datasetIndex].data[dataIndex];
+                        const datasetLabel = chart.data.datasets[datasetIndex].label;
+
+                        alert(`Clicked on ${datasetLabel} - ${label}: ${value}`);
+                    }
+                },
+            },
+        };
+        
+        const earningChart = new Chart(ctx, config);;
+        function openDatePicker() {
+            document.getElementById("datePicker").showPicker();
+        }
+
+        // Updates the displayed date after the user selects a date
+        function updateDate(event) {
+            const selectedDate = new Date(event.target.value);
+            const options = { day: "2-digit", month: "short", year: "numeric" };
+            document.getElementById("selectedDate").textContent =
+                selectedDate.toLocaleDateString("en-GB", options);
+        }
+        let paymentData = [
+            {
+                month: "January 2024",
+                payoutAmount: "1,00,000",
+                totalPayout: "2,00,000",
+                status: "Received",
+            },
+            {
+                month: "February 2024",
+                payoutAmount: "5,00,000",
+                totalPayout: "510000",
+                status: "Done",
+            },
+            {
+                month: "March 2024",
+                payoutAmount: "4,00,000",
+                totalPayout: "600000",
+                status: "Done",
+            },
+            {
+                month: "April 2024",
+                payoutAmount: "8,00,000",
+                totalPayout: "844844",
+                status: "Done",
+            },
+            {
+                month: "may 2024",
+                payoutAmount: "10,00,000",
+                totalPayout: "8448441",
+                status: "Received",
+            },
+        ];
+        function updateCurrentDate() {
+            const now = new Date();
+            const formattedDate = now.toLocaleDateString("en-US", {
+                month: "long",
+                day: "numeric",
+                year: "numeric",
+            });
+            document.getElementById(
+                "sun-currentDate"
+            ).textContent = `Current Date: ${formattedDate}`;
+        }
+
+        function populateTable(data) {
+            const tableBody = document.getElementById("sun-paymentTableBody");
+            tableBody.innerHTML = "";
+            data.forEach((payment) => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+            <td class="sun-month-cell">${payment.month}</td>
+            <td>${payment.payoutAmount}</td>
+            <td class="sun-total-payout-cell">${payment.totalPayout}</td>
+            <td>
+                <span class="sun-status ${payment.status === "Received"
+                        ? "sun-status-received"
+                        : "sun-status-done"
+                    }">
+                    ${payment.status}
+                </span>
+            </td>
+        `;
+                row.addEventListener("click", function () {
+                    const allRows = document.querySelectorAll(
+                        "#sun-paymentTableBody tr"
+                    );
+                    allRows.forEach((r) => r.classList.remove("sun-selected"));
+                    this.classList.add("sun-selected");
+                });
+                tableBody.appendChild(row);
+            });
+        }
+        function handleSearch(event) {
+            const searchTerm = event.target.value.toLowerCase();
+            const filteredData = paymentData.filter((payment) =>
+                payment.month.toLowerCase().includes(searchTerm)
+            );
+            populateTable(filteredData);
+        }
+        document.addEventListener("DOMContentLoaded", function () {
+            updateCurrentDate();
+            populateTable(paymentData);
+            const searchInput = document.getElementById("sun-searchInput");
+            searchInput.addEventListener("input", handleSearch);
+        });
+
+        document.addEventListener("DOMContentLoaded", (event) => {
+            // Initialize Lucide icons
+            lucide.createIcons();
+
+            // Toggle sidebar on mobile
+            const menuToggle = document.getElementById("menuToggle");
+            const sidebar = document.querySelector(".sidebar");
+
+            menuToggle.addEventListener("click", () => {
+                sidebar.classList.toggle("active");
+            });
+
+            // Close sidebar when clicking outside on mobile
+            document.addEventListener("click", (event) => {
+                const isClickInsideSidebar = sidebar.contains(event.target);
+                const isClickOnMenuToggle = menuToggle.contains(event.target);
+
+                if (
+                    !isClickInsideSidebar &&
+                    !isClickOnMenuToggle &&
+                    window.innerWidth <= 768
+                ) {
+                    sidebar.classList.remove("active");
+                }
+            });
+
+            // Handle window resize
+            window.addEventListener("resize", () => {
+                if (window.innerWidth > 768) {
+                    sidebar.classList.remove("active");
+                }
+            });
+        });
+        document.addEventListener('DOMContentLoaded', function () {
+            const noticeList = document.querySelector('.notice-board__list');
+            const navDots = document.querySelectorAll('.nav-dot');
+            const itemHeight = noticeList.querySelector('.notice-item').offsetHeight + 16; // 16px for margin-bottom
+            const visibleItems = 3;
+
+            navDots.forEach((dot, index) => {
+                dot.addEventListener('click', () => {
+                    noticeList.scrollTop = index * itemHeight * visibleItems;
+                    updateActiveDot(index);
+                });
+            });
+
+            noticeList.addEventListener('scroll', () => {
+                const scrollPosition = noticeList.scrollTop;
+                const activeIndex = Math.floor(scrollPosition / (itemHeight * visibleItems));
+                updateActiveDot(activeIndex);
+            });
+
+            function updateActiveDot(activeIndex) {
+                navDots.forEach((dot, index) => {
+                    dot.classList.toggle('active', index === activeIndex);
+                });
+            }
+        });
+
+        const news = [
+            "Market reaches all-time high",
+            "Tech stocks show strong growth",
+            "New regulations impact trading",
+            "Quarterly earnings exceed expectations",
+            "Global markets show positive trends",
+            "Market reaches all-time high",
+            "Tech stocks show strong growth",
+            "New regulations impact trading",
+            "Quarterly earnings exceed expectations",
+            "Global markets show positive trends",
+            "Market reaches all-time high",
+            "Tech stocks show strong growth",
+            "New regulations impact trading",
+            "Quarterly earnings exceed expectations",
+            "Global markets show positive trends"
+        ];
+
+        function createNewsCard(newsText) {
+            const card = document.createElement('div');
+            card.className = 'news-card';
+
+            const title = document.createElement('div');
+            title.className = 'news-title';
+            title.textContent = newsText;
+
+            card.appendChild(title);
+            return card;
+        }
+
+        function createScrollIndicator() {
+            const indicator = document.getElementById('scrollIndicator');
+            for (let i = 3; i < news.length; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'scroll-dot';
+                if (i === 0) dot.classList.add('active');
+                dot.addEventListener('click', () => scrollToItem(i));
+                indicator.appendChild(dot);
+            }
+        }
+
+        function scrollToItem(index) {
+            const container = document.getElementById('newsContainer');
+            const cards = container.getElementsByClassName('news-card');
+            if (cards[index]) {
+                cards[index].scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        function updateScrollIndicator() {
+            const container = document.getElementById('newsContainer');
+            const cards = container.getElementsByClassName('news-card');
+            const dots = document.getElementsByClassName('scroll-dot');
+
+            const containerRect = container.getBoundingClientRect();
+
+            Array.from(cards).forEach((card, index) => {
+                const cardRect = card.getBoundingClientRect();
+                if (cardRect.top >= containerRect.top && cardRect.bottom <= containerRect.bottom) {
+                    Array.from(dots).forEach(dot => dot.classList.remove('active'));
+                    dots[index].classList.add('active');
+                }
+            });
+        }
+
+        function renderNews() {
+            const container = document.getElementById('newsContainer');
+            news.forEach(newsItem => {
+                const newsCard = createNewsCard(newsItem);
+                container.appendChild(newsCard);
+            });
+            createScrollIndicator();
+
+            container.addEventListener('scroll', updateScrollIndicator);
+        }
+
+        document.addEventListener('DOMContentLoaded', renderNews);
+
+        
+        // Get references to elements
+        const userName = document.getElementById('UP-userName');
+        const popupMenu = document.getElementById('UP-popupMenu');
+
+        // Toggle popup menu visibility
+        userName.addEventListener('click', function () {
+            popupMenu.style.display = popupMenu.style.display === 'block' ? 'none' : 'block';
+        });
+
+        // Close the popup menu when clicking outside
+        document.addEventListener('click', function (event) {
+            if (!popupMenu.contains(event.target) && !userName.contains(event.target)) {
+                popupMenu.style.display = 'none';
+            }
+        });
+
+
+    </script>
+</body>
+
+</html>
